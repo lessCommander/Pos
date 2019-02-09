@@ -1,0 +1,124 @@
+{
+    "burger": [
+        {
+            "id": 1,
+            "name": "香辣鸡腿堡",
+            "price": 18,
+            "img": "goods1"
+        },
+        {
+            "id": 2,
+            "name": "脆鸡八分堡",
+            "price": 15,
+            "img": "goods1"
+        },
+        {
+            "id": 3,
+            "name": "劲脆鸡腿堡",
+            "price": 12,
+            "img": "goods1"
+        },
+        {
+            "id": 4,
+            "name": "新奥尔良鸡腿堡",
+            "price": 17,
+            "img": "goods1"
+        }
+    ],
+    "snack": [
+        {
+            "id": 5,
+            "name": "允指原味鸡",
+            "price": 12,
+            "img": "goods2"
+        },
+        {
+            "id": 6,
+            "name": "香辣鸡翅",
+            "price": 8,
+            "img": "goods2"
+        },
+        {
+            "id": 7,
+            "name": "泰式香辣烤翅",
+            "price": 10,
+            "img": "goods2"
+        },
+        {
+            "id": 8,
+            "name": "黄金鸡块",
+            "price": 14,
+            "img": "goods2"
+        },
+        {
+            "id": 9,
+            "name": "劲爆鸡米花",
+            "price": 12,
+            "img": "goods2"
+        }
+    ],
+    "drink": [
+        {
+            "id": 10,
+            "name": "圣代（草莓）",
+            "price": 14,
+            "img": "goods3"
+        },
+        {
+            "id": 11,
+            "name": "脆皮甜筒",
+            "price": 10,
+            "img": "goods3"
+        },
+        {
+            "id": 12,
+            "name": "百事可乐",
+            "price": 7,
+            "img": "goods3"
+        },
+        {
+            "id": 13,
+            "name": "苹果气泡果汁",
+            "price": 11,
+            "img": "goods3"
+        },
+        {
+            "id": 14,
+            "name": "九针果汁",
+            "price": 12,
+            "img": "goods3"
+        },
+        {
+            "id": 15,
+            "name": "雪顶咖啡",
+            "price": 16,
+            "img": "goods3"
+        }
+    ],
+    "meal": [
+        {
+            "id": 16,
+            "name": "香辣鸡腿堡套餐",
+            "price": 92,
+            "img": "goods4"
+        },
+        {
+            "id": 17,
+            "name": "脆鸡八分堡套餐",
+            "price": 88,
+            "img": "goods4"
+        },
+        {
+            "id": 18,
+            "name": "劲脆鸡腿堡套餐",
+            "price": 76,
+            "img": "goods4"
+        },
+        {
+            "id": 19,
+            "name": "儿童套餐",
+            "price": 78,
+            "img": "goods4"
+        }
+    ]
+}
