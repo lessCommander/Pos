@@ -2,9 +2,9 @@
 <div class="home">
     <el-row class="main">
         <el-col :span="8" class="main-left">
-            <el-tabs stretch>
+            <el-tabs stretch class="tabs-wrap">
                 <el-tab-pane label="点餐">
-                    <el-table max-height="500" border stripe :data="curGoods" show-summary :summary-method="getSum" :span-method="sumSpanMethod">
+                    <el-table max-height="500" border stripe :data="curGoods" show-summary :summary-method="getSum">
                         <el-table-column prop="name" label="商品名称"></el-table-column>
                         <el-table-column prop="num" label="数量" width="60" align="center"></el-table-column>
                         <el-table-column prop="price" label="金额(元)" width="80" align="center"></el-table-column>
@@ -21,7 +21,7 @@
                             <el-button plain type="warning" :disabled="!ifPay">挂单</el-button>
                         </el-col>
                         <el-col :span="8">
-                            <el-button plain type="danger" :disabled="!ifPay" @click="delAllGoods">删除</el-button>
+                            <el-button plain type="danger" :disabled="!ifPay" @click="delAllGoods">整单取消</el-button>
                         </el-col>
                         <el-col :span="8">
                             <el-button plain type="success" :disabled="!ifPay">结账</el-button>
@@ -41,7 +41,7 @@
                 <div class="often-title">热门食品</div>
                 <ul class="often-list">
                     <li class="often-list-item" v-for="(g, inx) in oftenGoods" :key="inx">
-                        <el-tag :type="g.color" @click="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
+                        <el-tag :type="g.color" @click.stop="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
                     </li>
                 </ul>
             </div>
@@ -49,10 +49,13 @@
                 <el-tabs tabPosition="left" class="goods-list-tab">
                     <el-tab-pane label="特色主食">
                         <ul class="goods-list">
-                            <li class="goods-list-item" v-for="(g, inx) in goodsList.burger" :key="inx" @click="addGoods(g)">
+                            <li class="goods-list-item" v-for="(g, inx) in goodsList.burger" :key="inx" @click.stop="addGoods(g)">
                                 <img :src="getImgUrl(g.img)" :alt="g.img">
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
+                                <transition name="popup">
+                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                </transition>
                             </li>
                         </ul>
                     </el-tab-pane>
@@ -62,6 +65,9 @@
                                 <img :src="getImgUrl(g.img)" :alt="g.img">
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
+                                <transition name="popup">
+                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                </transition>
                             </li>
                         </ul>
                     </el-tab-pane>
@@ -71,6 +77,9 @@
                                 <img :src="getImgUrl(g.img)" :alt="g.img">
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
+                                <transition name="popup">
+                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                </transition>
                             </li>
                         </ul>
                     </el-tab-pane>
@@ -80,6 +89,9 @@
                                 <img :src="getImgUrl(g.img)" :alt="g.img">
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
+                                <transition name="popup">
+                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                </transition>
                             </li>
                         </ul>
                     </el-tab-pane>
@@ -102,7 +114,8 @@ export default {
                 drink: [],
                 meal: [],
                 snack: []
-            }
+            },
+            dotShow: false
         }
     },
     methods: {
@@ -124,10 +137,6 @@ export default {
             }, 0);
             sums[3] = '￥' + sums[3] + ' 元';
             return sums;
-        },
-        //合计行合并列
-        sumSpanMethod(params){
-            
         },
         //获取食品数据
         getGoodsData(){
@@ -190,6 +199,9 @@ export default {
                     num: 1
                 }));
             }
+
+            oGoods.dotShow = true;
+            setTimeout(()=>oGoods.dotShow = false, 800);
         },
         //减少按钮可用状态
         ifMinus(oGoods){
@@ -277,12 +289,17 @@ export default {
 .main-left, .main-right{
   height: 100%;
 }
+.tabs-wrap{
+    height: 100%;
+    border-right: 1px solid #e4e7ed;
+}
 .end-btns{
     margin-top: 10px;
 }
+/*热门食物*/
 .often-wrap{
     width: 100%;
-    border-left: 1px solid #e4e7ed;
+    /* border-left: 1px solid #e4e7ed; */
     border-bottom: 1px solid #e4e7ed;
 }
 .often-title{
@@ -300,6 +317,7 @@ export default {
 .often-list .often-list-item{
     float: left;
     padding: 10px;
+    position: relative;
 }
 .often-list .often-list-item span{
     transition: opacity .3s, box-shadow .3s;
@@ -309,6 +327,7 @@ export default {
     opacity: .7;
     box-shadow: 1px 1px 3px 0 #999;
 }
+/*所有食物列表*/
 .goods-list-wrap{
     height: 100%;
     padding: 10px;
@@ -329,10 +348,35 @@ export default {
     transition: border-color .3s, transform .3s, box-shadow .3s;
     cursor: pointer;
     overflow: hidden;
+    position: relative;
 }
 .goods-list-item:hover{
     border-color: #2e6bee;
     transform: translateY(-2px);
     box-shadow: 1px 1px 3px 0 #999;
+}
+/*加1数字*/
+.adot{
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    color: #f40;
+    font-weight: 700;
+    /* transition: top .8s, opacity .8s; */
+    position: absolute;
+    left: 50%;
+    top: 10px;
+    margin-left: -10px;
+}
+.popup-enter{
+    top: 10px;
+    opacity: 1;
+}
+.popup-enter-to, .popup-leave, .popup-leave-to{
+    top: -10px;
+    opacity: 0;
+}
+.popup-enter-active, .popup-leave-active{
+    transition: top .8s, opacity .8s;
 }
 </style>

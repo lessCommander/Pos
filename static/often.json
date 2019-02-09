@@ -2,51 +2,61 @@
     {
         "id": 1,
         "name": "香辣鸡腿堡",
-        "price": 18
+        "price": 18,
+        "dotShow": false
     },
     {
         "id": 10,
         "name": "圣代（草莓）",
-        "price": 14
+        "price": 14,
+        "dotShow": false
     },
     {
         "id": 11,
         "name": "脆皮甜筒",
-        "price": 10
+        "price": 10,
+        "dotShow": false
     },
     {
         "id": 17,
         "name": "脆鸡八分堡套餐",
-        "price": 88
+        "price": 88,
+        "dotShow": false
     },
     {
         "id": 18,
         "name": "劲脆鸡腿堡套餐",
-        "price": 76
+        "price": 76,
+        "dotShow": false
     },
     {
         "id": 15,
         "name": "雪顶咖啡",
-        "price": 16
+        "price": 16,
+        "dotShow": false
     },
     {
         "id": 6,
         "name": "香辣鸡翅",
-        "price": 8
+        "price": 8,
+        "dotShow": false
     },
     {
         "id": 7,
         "name": "泰式香辣烤翅",
-        "price": 10
+        "price": 10,
+        "dotShow": false
     },
     {
         "id": 8,
         "name": "黄金鸡块",
-        "price": 14
+        "price": 14,
+        "dotShow": false
     },
     {
         "id": 9,
         "name": "劲爆鸡米花",
-        "price": 12
+        "price": 12,
+        "dotShow": false
     }
 ]
