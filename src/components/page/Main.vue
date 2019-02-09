@@ -42,6 +42,9 @@
                 <ul class="often-list">
                     <li class="often-list-item" v-for="(g, inx) in oftenGoods" :key="inx">
                         <el-tag :type="g.color" @click.stop="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
+                        <transition name="popup">
+                            <em class="adot" v-if="g.dotShow">+1</em>
+                        </transition>
                     </li>
                 </ul>
             </div>
@@ -54,7 +57,7 @@
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
                                 <transition name="popup">
-                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                    <em class="adot" v-if="g.dotShow">+1</em>
                                 </transition>
                             </li>
                         </ul>
@@ -66,7 +69,7 @@
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
                                 <transition name="popup">
-                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                    <em class="adot" v-if="g.dotShow">+1</em>
                                 </transition>
                             </li>
                         </ul>
@@ -78,7 +81,7 @@
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
                                 <transition name="popup">
-                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                    <em class="adot" v-if="g.dotShow">+1</em>
                                 </transition>
                             </li>
                         </ul>
@@ -90,7 +93,7 @@
                                 <p>{{g.name}}</p>
                                 <p>{{g.price}}元</p>
                                 <transition name="popup">
-                                    <span class="adot" v-if="g.dotShow">+1</span>
+                                    <em class="adot" v-if="g.dotShow">+1</em>
                                 </transition>
                             </li>
                         </ul>
@@ -114,8 +117,7 @@ export default {
                 drink: [],
                 meal: [],
                 snack: []
-            },
-            dotShow: false
+            }
         }
     },
     methods: {
@@ -200,8 +202,12 @@ export default {
                 }));
             }
 
-            oGoods.dotShow = true;
-            setTimeout(()=>oGoods.dotShow = false, 800);
+            oGoods.dotShow = !oGoods.dotShow;
+            setTimeout(()=>{
+                if(oGoods.dotShow){
+                    oGoods.dotShow = false;
+                }
+            }, 800);
         },
         //减少按钮可用状态
         ifMinus(oGoods){
@@ -357,26 +363,27 @@ export default {
 }
 /*加1数字*/
 .adot{
+    font-style: normal;
     width: 20px;
     height: 20px;
     text-align: center;
     color: #f40;
     font-weight: 700;
-    /* transition: top .8s, opacity .8s; */
     position: absolute;
     left: 50%;
     top: 10px;
     margin-left: -10px;
 }
-.popup-enter{
+.popup-enter, .popup-leave{
     top: 10px;
-    opacity: 1;
-}
-.popup-enter-to, .popup-leave, .popup-leave-to{
-    top: -10px;
     opacity: 0;
 }
 .popup-enter-active, .popup-leave-active{
+    opacity: 1;
     transition: top .8s, opacity .8s;
+}
+.popup-enter-to, .popup-leave-to{
+    top: -10px;
+    opacity: 0;
 }
 </style>
