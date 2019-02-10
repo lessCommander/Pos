@@ -1,127 +1,244 @@
 <template>
-<div class="home">
-    <el-row class="main">
-        <el-col :span="8" class="main-left">
-            <el-tabs stretch class="tabs-wrap">
-                <el-tab-pane label="点餐">
-                    <el-table max-height="500" border stripe :data="curGoods" show-summary :summary-method="getSum">
-                        <el-table-column prop="name" label="商品名称"></el-table-column>
-                        <el-table-column prop="num" label="数量" width="60" align="center"></el-table-column>
-                        <el-table-column prop="price" label="金额(元)" width="80" align="center"></el-table-column>
-                        <el-table-column label="操作" width="150" align="center">
-                            <template slot-scope="scope">
-                                <el-button type="primary" circle size="mini" icon="el-icon-minus" :disabled="!ifMinus(scope.row)" @click="minusGoods(scope.row)"></el-button>
-                                <el-button type="primary" circle size="mini" icon="el-icon-plus" @click="addGoods(scope.row)"></el-button>
-                                <el-button type="danger" circle size="mini" icon="el-icon-delete" @click="delSingleGoods(scope)"></el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                    <el-row class="end-btns">
-                        <el-col :span="8">
-                            <el-button plain type="warning" :disabled="!ifPay">挂单</el-button>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-button plain type="danger" :disabled="!ifPay" @click="delAllGoods">整单取消</el-button>
-                        </el-col>
-                        <el-col :span="8">
-                            <el-button plain type="success" :disabled="!ifPay">结账</el-button>
-                        </el-col>
-                    </el-row>
-                </el-tab-pane>
-                <el-tab-pane label="挂单">
-                    挂单
-                </el-tab-pane>
-                <el-tab-pane label="外卖">
-                    外卖
-                </el-tab-pane>
-            </el-tabs>
-        </el-col>
-        <el-col :span="16" class="main-right">
-            <div class="often-wrap">
-                <div class="often-title">热门食品</div>
-                <ul class="often-list">
-                    <li class="often-list-item" v-for="(g, inx) in oftenGoods" :key="inx">
-                        <el-tag :type="g.color" @click.stop="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
-                        <transition name="popup">
-                            <em class="adot" v-if="g.dotShow">+1</em>
-                        </transition>
-                    </li>
-                </ul>
-            </div>
-            <div class="goods-list-wrap">
-                <el-tabs tabPosition="left" class="goods-list-tab">
-                    <el-tab-pane label="特色主食">
-                        <ul class="goods-list">
-                            <li class="goods-list-item" v-for="(g, inx) in goodsList.burger" :key="inx" @click.stop="addGoods(g)">
-                                <img :src="getImgUrl(g.img)" :alt="g.img">
-                                <p>{{g.name}}</p>
-                                <p>{{g.price}}元</p>
-                                <transition name="popup">
-                                    <em class="adot" v-if="g.dotShow">+1</em>
-                                </transition>
-                            </li>
-                        </ul>
+    <div class="home">
+        <el-row class="main">
+            <el-col :span="8" class="main-left">
+                <el-tabs stretch class="tabs-wrap">
+                    <el-tab-pane label="点餐">
+                        <el-table max-height="500" border stripe :data="curGoods" show-summary :summary-method="getSum">
+                            <el-table-column prop="name" label="商品名称"></el-table-column>
+                            <el-table-column prop="num" label="数量" width="60" align="center"></el-table-column>
+                            <el-table-column prop="price" label="金额(元)" width="80" align="center"></el-table-column>
+                            <el-table-column label="操作" width="150" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="primary" circle size="mini" icon="el-icon-minus" :disabled="!ifMinus(scope.row)"
+                                        @click="minusGoods(scope.row)"></el-button>
+                                    <el-button type="primary" circle size="mini" icon="el-icon-plus" @click="addGoods(scope.row)"></el-button>
+                                    <el-button type="danger" circle size="mini" icon="el-icon-delete" @click="delSingleGoods(scope, 'curGoods')"></el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-row class="end-btns">
+                            <el-col :span="8">
+                                <el-button plain type="warning" :disabled="!ifPay" @click="pendingOrder">挂单</el-button>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-button plain type="danger" :disabled="!ifPay" @click="delAllGoods('curGoods')">整单取消</el-button>
+                            </el-col>
+                            <el-col :span="8">
+                                <el-button plain type="success" :disabled="!ifPay" @click="payTheBill">结账</el-button>
+                            </el-col>
+                        </el-row>
                     </el-tab-pane>
-                    <el-tab-pane label="美味小食">
-                        <ul class="goods-list">
-                            <li class="goods-list-item" v-for="(g, inx) in goodsList.snack" :key="inx" @click="addGoods(g)">
-                                <img :src="getImgUrl(g.img)" :alt="g.img">
-                                <p>{{g.name}}</p>
-                                <p>{{g.price}}元</p>
-                                <transition name="popup">
-                                    <em class="adot" v-if="g.dotShow">+1</em>
-                                </transition>
-                            </li>
-                        </ul>
+                    <el-tab-pane label="挂单">
+                        <el-table max-height="500" border stripe :data="pendingGoods" show-summary :summary-method="getSum">
+                            <el-table-column prop="name" label="商品名称"></el-table-column>
+                            <el-table-column prop="num" label="数量" width="60" align="center"></el-table-column>
+                            <el-table-column prop="price" label="金额(元)" width="80" align="center"></el-table-column>
+                            <el-table-column label="操作" width="120" align="center">
+                                <template slot-scope="scope">
+                                    <el-button type="danger" size="mini" @click="delSingleGoods(scope, 'pendingGoods')">删除</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                        <el-row class="end-btns">
+                            <el-col :span="12">
+                                <el-button plain type="warning" :disabled="pendingGoods.length === 0" @click="releaseOrder">全部解单</el-button>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-button plain type="danger" :disabled="pendingGoods.length === 0" @click="delAllGoods('pendingGoods')">全部删除</el-button>
+                            </el-col>
+                        </el-row>
                     </el-tab-pane>
-                    <el-tab-pane label="甜点饮料">
-                        <ul class="goods-list">
-                            <li class="goods-list-item" v-for="(g, inx) in goodsList.drink" :key="inx" @click="addGoods(g)">
-                                <img :src="getImgUrl(g.img)" :alt="g.img">
-                                <p>{{g.name}}</p>
-                                <p>{{g.price}}元</p>
-                                <transition name="popup">
-                                    <em class="adot" v-if="g.dotShow">+1</em>
-                                </transition>
-                            </li>
-                        </ul>
-                    </el-tab-pane>
-                    <el-tab-pane label="超值套餐">
-                        <ul class="goods-list">
-                            <li class="goods-list-item" v-for="(g, inx) in goodsList.meal" :key="inx" @click="addGoods(g)">
-                                <img :src="getImgUrl(g.img)" :alt="g.img">
-                                <p>{{g.name}}</p>
-                                <p>{{g.price}}元</p>
-                                <transition name="popup">
-                                    <em class="adot" v-if="g.dotShow">+1</em>
-                                </transition>
-                            </li>
-                        </ul>
+                    <el-tab-pane label="外卖">
+                        <div class="snack-form-wrap">
+                            <el-form :model="ruleForm" ref="ruleForm" :rules="rules" label-width="90px">
+                                <el-form-item label="客户名称" prop="name">
+                                    <el-input v-model="ruleForm.name"></el-input>
+                                </el-form-item>
+                                <el-form-item label="客户电话" prop="phone">
+                                    <el-input v-model.number="ruleForm.phone"></el-input>
+                                </el-form-item>
+                                <el-form-item label="送餐时间" required>
+                                    <el-col :span="11">
+                                        <el-form-item prop="date1">
+                                            <el-date-picker type="date" placeholder="选择日期" v-model="ruleForm.date1" style="width: 100%;"></el-date-picker>
+                                        </el-form-item>
+                                    </el-col>
+                                    <el-col class="line" :span="2">-</el-col>
+                                    <el-col :span="11">
+                                        <el-form-item prop="date2">
+                                            <el-time-picker type="fixed-time" placeholder="选择时间" v-model="ruleForm.date2"
+                                                style="width: 100%;"></el-time-picker>
+                                        </el-form-item>
+                                    </el-col>
+                                </el-form-item>
+                                <el-form-item label="即时配送" prop="delivery">
+                                    <el-switch v-model="ruleForm.delivery"></el-switch>
+                                </el-form-item>
+                                <el-form-item label="是否会员" prop="isVip">
+                                    <el-radio-group v-model="ruleForm.isVip">
+                                        <el-radio label="会员"></el-radio>
+                                        <el-radio label="非会员"></el-radio>
+                                    </el-radio-group>
+                                </el-form-item>
+                                <el-form-item label="备注" prop="desc">
+                                    <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="submitForm('ruleForm')">立即下单</el-button>
+                                    <el-button type="warning" @click="resetForm('ruleForm')">重置</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
                     </el-tab-pane>
                 </el-tabs>
-            </div>
-        </el-col>
-    </el-row>
-</div>
+            </el-col>
+            <el-col :span="16" class="main-right">
+                <div class="often-wrap">
+                    <div class="often-title">热门食品</div>
+                    <ul class="often-list">
+                        <li class="often-list-item" v-for="(g, inx) in oftenGoods" :key="inx">
+                            <el-tag :type="g.color" @click.stop="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
+                            <transition name="popup">
+                                <em class="adot" v-if="g.dotShow">+1</em>
+                            </transition>
+                        </li>
+                    </ul>
+                </div>
+                <div class="goods-list-wrap">
+                    <el-tabs tabPosition="left" class="goods-list-tab">
+                        <el-tab-pane label="特色主食">
+                            <ul class="goods-list">
+                                <li class="goods-list-item" v-for="(g, inx) in goodsList.burger" :key="inx" @click.stop="addGoods(g)">
+                                    <img :src="getImgUrl(g.img)" :alt="g.img">
+                                    <p>{{g.name}}</p>
+                                    <p>{{g.price}}元</p>
+                                    <transition name="popup">
+                                        <em class="adot" v-if="g.dotShow">+1</em>
+                                    </transition>
+                                </li>
+                            </ul>
+                        </el-tab-pane>
+                        <el-tab-pane label="美味小食">
+                            <ul class="goods-list">
+                                <li class="goods-list-item" v-for="(g, inx) in goodsList.snack" :key="inx" @click="addGoods(g)">
+                                    <img :src="getImgUrl(g.img)" :alt="g.img">
+                                    <p>{{g.name}}</p>
+                                    <p>{{g.price}}元</p>
+                                    <transition name="popup">
+                                        <em class="adot" v-if="g.dotShow">+1</em>
+                                    </transition>
+                                </li>
+                            </ul>
+                        </el-tab-pane>
+                        <el-tab-pane label="甜点饮料">
+                            <ul class="goods-list">
+                                <li class="goods-list-item" v-for="(g, inx) in goodsList.drink" :key="inx" @click="addGoods(g)">
+                                    <img :src="getImgUrl(g.img)" :alt="g.img">
+                                    <p>{{g.name}}</p>
+                                    <p>{{g.price}}元</p>
+                                    <transition name="popup">
+                                        <em class="adot" v-if="g.dotShow">+1</em>
+                                    </transition>
+                                </li>
+                            </ul>
+                        </el-tab-pane>
+                        <el-tab-pane label="超值套餐">
+                            <ul class="goods-list">
+                                <li class="goods-list-item" v-for="(g, inx) in goodsList.meal" :key="inx" @click="addGoods(g)">
+                                    <img :src="getImgUrl(g.img)" :alt="g.img">
+                                    <p>{{g.name}}</p>
+                                    <p>{{g.price}}元</p>
+                                    <transition name="popup">
+                                        <em class="adot" v-if="g.dotShow">+1</em>
+                                    </transition>
+                                </li>
+                            </ul>
+                        </el-tab-pane>
+                    </el-tabs>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
 </template>
 
 <script>
 export default {
     name: 'home',
-    data() {
-        return {
-            curGoods: [], //当前已经点餐的食物
-            oftenGoods: [], //模拟后台获取的热门食物
-            goodsList: {  //模拟后台获取的所有食物
-                burger: [],
-                drink: [],
-                meal: [],
-                snack: []
-            },
-            timer: null,
-            timerSwitch: false
-        }
-    },
+        data() {
+            return {
+                curGoods: [], //当前已经点餐的食物
+                oftenGoods: [], //模拟后台获取的热门食物
+                goodsList: { //模拟后台获取的所有食物
+                    burger: [],
+                    drink: [],
+                    meal: [],
+                    snack: []
+                },
+                saveAllPrice: 0, //记录总价格，结账时使用
+                timer: null, //用于弹出+1间隔
+                timerSwitch: false, //弹出+1的开关
+                pendingGoods: [], //挂单的食物
+                ruleForm: { //外卖表单
+                    name: '',
+                    phone: '',
+                    date1: '',
+                    date2: '',
+                    delivery: false,
+                    isVip: '',
+                    desc: ''
+                },
+                rules: { //外卖表单规则
+                    name: [
+                        {
+                            required: true,
+                            message: '请输入客户名称',
+                            trigger: 'blur'
+                        },
+                        {
+                            min: 1,
+                            max: 10,
+                            message: '长度在 1 到 10 个字符',
+                            trigger: 'blur'
+                        }
+                    ],
+                    phone: [
+                        {
+                            required: true,
+                            message: '请输入客户电话',
+                            trigger: 'blur'
+                        },
+                        {
+                            type: 'number',
+                            message: '电话号码必须为数字'
+                        }
+                    ],
+                    date1: [
+                        {
+                            type: 'date',
+                            required: true,
+                            message: '请选择日期',
+                            trigger: 'change'
+                        }
+                    ],
+                    date2: [
+                        {
+                            type: 'date',
+                            required: true,
+                            message: '请选择时间',
+                            trigger: 'change'
+                        }
+                    ],
+                    isVip: [
+                        {
+                            required: true,
+                            message: '请选择是否为会员',
+                            trigger: 'change'
+                        }
+                    ]
+                }
+            }
+        },
     methods: {
         //合计
         getSum({data}) {
@@ -139,6 +256,7 @@ export default {
                     return prev;
                 }
             }, 0);
+            this.saveAllPrice = sums[3];
             sums[3] = '￥' + sums[3] + ' 元';
             return sums;
         },
@@ -210,9 +328,6 @@ export default {
                 this.timer = setTimeout(()=>{
                     oGoods.dotShow = this.timerSwitch = false;
                 }, 800);
-            }else{
-                clearTimeout(this.timer);
-                oGoods.dotShow = this.timerSwitch = false;
             }
         },
         //减少按钮可用状态
@@ -234,14 +349,14 @@ export default {
                 }
             }
         },
-        //删除单个商品
-        delSingleGoods(oScope){
-            this.$confirm('是否删除 ' + oScope.row.name + '？', '提示', {
+        //删除单个商品，参数为删除的列表名：'curGoods'|'pendingGoods'
+        delSingleGoods(oScope, listName){
+            this.$confirm('是否删除 “' + oScope.row.name + '”？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'info'
             }).then(() => {
-                this.curGoods.splice(oScope.$index, 1);
+                this[listName].splice(oScope.$index, 1);
                 this.$message({
                     type: 'success',
                     message: '删除成功!'
@@ -253,23 +368,137 @@ export default {
                 });
             });
         },
-        //删除所有商品
-        delAllGoods(){
-            this.$confirm('是否删除所有商品？', '提示', {
+        //删除所有商品，参数为删除的列表名：'curGoods'|'pendingGoods'
+        delAllGoods(listName){
+            this.$confirm('是否删除所有商品？', '删除提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'error'
             }).then(() => {
-                this.curGoods = [];
+                this[listName] = [];
                 this.$message({
                     type: 'success',
-                    message: '删除成功!'
+                    message: '删除成功！'
                 });
             }).catch(() => {
                 this.$message({
                     type: 'info',
-                    message: '已取消删除'
+                    message: '已取消删除！'
                 });
+            });
+        },
+        //结账
+        payTheBill(){
+            this.$confirm('共 ' + this.saveAllPrice + ' 元，是否要结账？', '结账提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'success'
+            }).then(() => {
+                const loading = this.$loading({
+                    lock: true,
+                    text: '结账中……',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+
+                setTimeout(() => {
+                    loading.close();
+                    this.$message({
+                        type: 'success',
+                        message: '结账成功！'
+                    });
+                    this.curGoods = []; //清空点餐栏
+                    this.saveAllPrice = 0;  //合计清零
+                }, 2000);
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消结账！'
+                });
+            });
+        },
+        //全部挂单
+        pendingOrder(){
+            this.$confirm('是否进行挂单？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+            }).then(() => {
+                this.pendingGoods = this.curGoods;
+                this.curGoods = [];
+                this.$notify({
+                    message: '挂单成功，请在挂单页查看。',
+                    type: 'success'
+                });
+            }).catch(() => {
+                this.$notify({
+                    message: '已取消挂单。',
+                    type: 'info'
+                });
+            });
+        },
+        //全部解单
+        releaseOrder(){
+            this.$confirm('是否全部解单？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+            }).then(() => {
+                this.curGoods = this.pendingGoods;
+                this.pendingGoods = [];
+                this.$notify({
+                    message: '解单成功，请在点餐页查看。',
+                    type: 'success'
+                });
+            }).catch(() => {
+                this.$notify({
+                    message: '已取消解单。',
+                    type: 'info'
+                });
+            });
+        },
+        //外卖表单提交
+        submitForm(formName) {
+            this.$refs[formName].validate(valid => {
+                if (valid) {
+                    this.$confirm('是否立即下单?', '提示', {
+                        confirmButtonText: '确定',
+                        cancelButtonText: '取消',
+                        type: 'success',
+                        center: true
+                    }).then(() => {
+                        const loading = this.$loading({
+                            lock: true,
+                            text: '正在下单……',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.6)'
+                        });
+
+                        setTimeout(() => {
+                            loading.close();
+                            this.$alert('已成功下单！');
+                            this.$refs[formName].resetFields();
+                        }, 1234);
+                        
+                    }).catch(() => {
+                        
+                    });
+                } else {
+                    return false;
+                }
+            });
+        },
+        //外卖表单重置
+        resetForm(formName) {
+            this.$confirm('是否重置表单?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning',
+                center: true
+            }).then(() => {
+                this.$refs[formName].resetFields();
+            }).catch(() => {
+                
             });
         }
     },
@@ -388,5 +617,11 @@ export default {
 .popup-enter-to{
     bottom: 30px;
     opacity: 1;
+}
+/*外卖*/
+.snack-form-wrap{
+    width: 95%;
+    height: 100%;
+    text-align: left;
 }
 </style>

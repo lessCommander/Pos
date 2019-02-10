@@ -1,7 +1,7 @@
 <template>
   <div class="left-nav">
       <ul>
-        <li v-for="(pane, inx) in panes" :key="inx">
+        <li v-for="(pane, inx) in panes" :key="inx" :class="{'active': pane.txt === curActive}">
           <a href="#">
             <i class="iconfont" :class="pane.iconClass"></i>
             <p>{{pane.txt}}</p>
@@ -23,7 +23,8 @@ export default {
         {iconClass: 'icon-zuanshi', txt: '会员'},
         {iconClass: 'icon-tongji', txt: '统计'},
         {iconClass: 'icon-31shezhi', txt: '设置'}
-      ]
+      ],
+      curActive: '收银'
     }
   }
 }
@@ -49,8 +50,11 @@ export default {
   color: #eee;
   padding: 10px 0;
 }
-.left-nav li a:hover{
-  color: #2e6bee;
+.left-nav li.active a{
+  color: #fc6500;
+}
+.left-nav li:hover a{
+  color: #fc9b67;
 }
 .left-nav li a i{
   font-size: 20px;
