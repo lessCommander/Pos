@@ -117,7 +117,9 @@ export default {
                 drink: [],
                 meal: [],
                 snack: []
-            }
+            },
+            timer: null,
+            timerSwitch: false
         }
     },
     methods: {
@@ -202,12 +204,16 @@ export default {
                 }));
             }
 
-            oGoods.dotShow = !oGoods.dotShow;
-            setTimeout(()=>{
-                if(oGoods.dotShow){
-                    oGoods.dotShow = false;
-                }
-            }, 800);
+            if(!this.timerSwitch){
+                this.timerSwitch = true;
+                oGoods.dotShow = true;
+                this.timer = setTimeout(()=>{
+                    oGoods.dotShow = this.timerSwitch = false;
+                }, 800);
+            }else{
+                clearTimeout(this.timer);
+                oGoods.dotShow = this.timerSwitch = false;
+            }
         },
         //减少按钮可用状态
         ifMinus(oGoods){
@@ -277,7 +283,6 @@ export default {
                 return this.curGoods.length > 0;
             }
         },
-        //合计
     }
 }
 </script>
@@ -371,19 +376,17 @@ export default {
     font-weight: 700;
     position: absolute;
     left: 50%;
-    top: 10px;
     margin-left: -10px;
 }
-.popup-enter, .popup-leave{
-    top: 10px;
+.popup-enter, .popup-leave, .popup-leave-to{
+    bottom: 10px;
     opacity: 0;
 }
-.popup-enter-active, .popup-leave-active{
+.popup-enter-active{
+    transition: bottom .8s, opacity .8s;
+}
+.popup-enter-to{
+    bottom: 30px;
     opacity: 1;
-    transition: top .8s, opacity .8s;
-}
-.popup-enter-to, .popup-leave-to{
-    top: -10px;
-    opacity: 0;
 }
 </style>
