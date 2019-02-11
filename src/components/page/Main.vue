@@ -34,8 +34,9 @@
                             <el-table-column prop="name" label="商品名称"></el-table-column>
                             <el-table-column prop="num" label="数量" width="60" align="center"></el-table-column>
                             <el-table-column prop="price" label="金额(元)" width="80" align="center"></el-table-column>
-                            <el-table-column label="操作" width="120" align="center">
+                            <el-table-column label="操作" width="150" align="center">
                                 <template slot-scope="scope">
+                                    <el-button type="warning" size="mini" @click="releaseSingle(scope.$index)">解单</el-button>
                                     <el-button type="danger" size="mini" @click="delSingleGoods(scope, 'pendingGoods')">删除</el-button>
                                 </template>
                             </el-table-column>
@@ -112,7 +113,7 @@
                                 <li class="goods-list-item" v-for="(g, inx) in goodsList.burger" :key="inx" @click.stop="addGoods(g)">
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
-                                    <p>{{g.price}}元</p>
+                                    <p class="normal-price">￥{{g.price|tofixed2}}元</p>
                                     <transition name="popup">
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
@@ -124,7 +125,7 @@
                                 <li class="goods-list-item" v-for="(g, inx) in goodsList.snack" :key="inx" @click="addGoods(g)">
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
-                                    <p>{{g.price}}元</p>
+                                    <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
                                     <transition name="popup">
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
@@ -136,7 +137,7 @@
                                 <li class="goods-list-item" v-for="(g, inx) in goodsList.drink" :key="inx" @click="addGoods(g)">
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
-                                    <p>{{g.price}}元</p>
+                                    <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
                                     <transition name="popup">
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
@@ -148,7 +149,7 @@
                                 <li class="goods-list-item" v-for="(g, inx) in goodsList.meal" :key="inx" @click="addGoods(g)">
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
-                                    <p>{{g.price}}元</p>
+                                    <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
                                     <transition name="popup">
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
@@ -436,8 +437,7 @@ export default {
                 }
             }
 
-            targetG = tgs;
-            originG = [];
+            return tgs;
         },
         //全部挂单
         pendingOrder(){
@@ -446,27 +446,8 @@ export default {
                 cancelButtonText: '取消',
                 type: 'info'
             }).then(() => {
-                let ogs = this.curGoods,
-                    tgs = [...this.pendingGoods],
-                    founded = false;
-
-                for (let og of ogs){
-                    founded = tgs.some(tg=>{
-                        if(tg.name === og.name){
-                            tg.num += og.num;
-                            return true;
-                        }
-                    });
-                    
-                    if(!founded){
-                        tgs.push({...og});
-                    }
-                }
-                
-                this.pendingGoods = tgs;
+                this.pendingGoods = this.copyPlusGoods(this.curGoods, this.pendingGoods);
                 this.curGoods = [];
-
-                // this.copyPlusGoods(this.curGoods, this.pendingGoods);
 
                 this.$notify({
                     message: '挂单成功，请在挂单页查看。',
@@ -486,30 +467,43 @@ export default {
                 cancelButtonText: '取消',
                 type: 'info'
             }).then(() => {
-                let ogs = this.pendingGoods,
-                    tgs = [...this.curGoods],
-                    founded = false;
-
-                for (let og of ogs){
-                    founded = tgs.some(tg=>{
-                        if(tg.name === og.name){
-                            tg.num += og.num;
-                            return true;
-                        }
-                    });
-                    
-                    if(!founded){
-                        tgs.push({...og});
-                    }
-                }
-
-                this.curGoods = tgs;
+                this.curGoods = this.copyPlusGoods(this.pendingGoods, this.curGoods);
                 this.pendingGoods = [];
 
                 this.$notify({
                     message: '解单成功，请在点餐页查看。',
                     type: 'success'
                 });
+            }).catch(() => {
+                this.$notify({
+                    message: '已取消解单。',
+                    type: 'info'
+                });
+            });
+        },
+        //单个解单
+        releaseSingle(inx){
+            let tgs = [...this.curGoods],
+                g = this.pendingGoods[inx],
+                founded = false;
+
+            this.$confirm('是否解单？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'info'
+            }).then(() => {
+                founded = tgs.some(tg=>{
+                    if(tg.name === g.name){
+                        tg.num += g.num;
+                        return true;
+                    }
+                });
+                if(!founded){
+                    tgs.push(g);
+                }
+
+                this.curGoods = tgs;
+                this.pendingGoods.splice(inx, 1);
             }).catch(() => {
                 this.$notify({
                     message: '已取消解单。',
@@ -562,6 +556,11 @@ export default {
             });
         }
     },
+    filters: {
+        tofixed2(num){
+            return num.toFixed(2);
+        }
+    },
     mounted(){
         this.getGoodsData();
     },
@@ -579,9 +578,10 @@ export default {
 <style scoped>
 .home{
   height: 100%;
+  margin-left: 70px;
 }
 .main{
-  width: 95%;
+  width: 98%;
   height: 100%;  
   float: left;
   text-align: center;
@@ -655,6 +655,10 @@ export default {
     transform: translateY(-2px);
     box-shadow: 1px 1px 3px 0 #999;
 }
+.normal-price{
+    color: #f40;
+    font-weight: 700;
+}
 /*加1数字*/
 .adot{
     font-style: normal;
@@ -666,6 +670,7 @@ export default {
     position: absolute;
     left: 50%;
     margin-left: -10px;
+    text-shadow: 2px 2px 4px;
 }
 .popup-enter, .popup-leave, .popup-leave-to{
     bottom: 10px;
