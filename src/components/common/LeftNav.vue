@@ -32,12 +32,12 @@ export default {
 
 <style scoped>
 .left-nav{
-  width: 5%;
+  width: 60px;
   height: 100%;
   float: left;
   background-color: #6b96f3;
   text-align: center;
-  box-shadow: 2px 0 4px 0 rgba(0,0,0,.12);
+  box-shadow: 2px 0 4px 0 rgba(0,0,0,.7);
 }
 .left-nav li{
   font-size: 14px;
