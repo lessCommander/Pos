@@ -417,6 +417,28 @@ export default {
                 });
             });
         },
+        //全部挂单 <=> 全部取消挂单，如果有重复的食品，则数量+1，没有就添加
+        copyPlusGoods(originG, targetG){
+            let ogs = originG,
+                tgs = [...targetG],
+                founded = false;
+
+            for (let og of ogs){
+                founded = tgs.some(tg=>{
+                    if(tg.name === og.name){
+                        tg.num += og.num;
+                        return true;
+                    }
+                });
+                
+                if(!founded){
+                    tgs.push({...og});
+                }
+            }
+
+            targetG = tgs;
+            originG = [];
+        },
         //全部挂单
         pendingOrder(){
             this.$confirm('是否进行挂单？', '提示', {
@@ -424,8 +446,28 @@ export default {
                 cancelButtonText: '取消',
                 type: 'info'
             }).then(() => {
-                this.pendingGoods = this.curGoods;
+                let ogs = this.curGoods,
+                    tgs = [...this.pendingGoods],
+                    founded = false;
+
+                for (let og of ogs){
+                    founded = tgs.some(tg=>{
+                        if(tg.name === og.name){
+                            tg.num += og.num;
+                            return true;
+                        }
+                    });
+                    
+                    if(!founded){
+                        tgs.push({...og});
+                    }
+                }
+                
+                this.pendingGoods = tgs;
                 this.curGoods = [];
+
+                // this.copyPlusGoods(this.curGoods, this.pendingGoods);
+
                 this.$notify({
                     message: '挂单成功，请在挂单页查看。',
                     type: 'success'
@@ -444,8 +486,26 @@ export default {
                 cancelButtonText: '取消',
                 type: 'info'
             }).then(() => {
-                this.curGoods = this.pendingGoods;
+                let ogs = this.pendingGoods,
+                    tgs = [...this.curGoods],
+                    founded = false;
+
+                for (let og of ogs){
+                    founded = tgs.some(tg=>{
+                        if(tg.name === og.name){
+                            tg.num += og.num;
+                            return true;
+                        }
+                    });
+                    
+                    if(!founded){
+                        tgs.push({...og});
+                    }
+                }
+
+                this.curGoods = tgs;
                 this.pendingGoods = [];
+
                 this.$notify({
                     message: '解单成功，请在点餐页查看。',
                     type: 'success'
