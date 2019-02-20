@@ -100,7 +100,12 @@
                     <ul class="often-list">
                         <li class="often-list-item" v-for="(g, inx) in oftenGoods" :key="inx">
                             <el-tag :type="g.color" @click.stop="addGoods(g)">{{g.name}} {{g.price}}元</el-tag>
-                            <transition name="popup">
+                            <!-- name="popup" -->
+                            <transition 
+                                @before-enter="beforeEnter"
+                                @enter="enter"
+                                @after-enter="afterEnter"
+                            >
                                 <em class="adot" v-if="g.dotShow">+1</em>
                             </transition>
                         </li>
@@ -114,7 +119,11 @@
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
                                     <p class="normal-price">￥{{g.price|tofixed2}}元</p>
-                                    <transition name="popup">
+                                    <transition 
+                                        @before-enter="beforeEnter"
+                                        @enter="enter"
+                                        @after-enter="afterEnter"
+                                    >
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
                                 </li>
@@ -126,7 +135,11 @@
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
                                     <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
-                                    <transition name="popup">
+                                    <transition 
+                                        @before-enter="beforeEnter"
+                                        @enter="enter"
+                                        @after-enter="afterEnter"
+                                    >
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
                                 </li>
@@ -138,7 +151,11 @@
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
                                     <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
-                                    <transition name="popup">
+                                    <transition 
+                                        @before-enter="beforeEnter"
+                                        @enter="enter"
+                                        @after-enter="afterEnter"
+                                    >
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
                                 </li>
@@ -150,7 +167,11 @@
                                     <img :src="getImgUrl(g.img)" :alt="g.img">
                                     <p>{{g.name}}</p>
                                     <p class="normal-price">￥{{g.price|tofixed2}}元</p>                                    
-                                    <transition name="popup">
+                                    <transition 
+                                        @before-enter="beforeEnter"
+                                        @enter="enter"
+                                        @after-enter="afterEnter"
+                                    >
                                         <em class="adot" v-if="g.dotShow">+1</em>
                                     </transition>
                                 </li>
@@ -177,8 +198,6 @@ export default {
                     snack: []
                 },
                 saveAllPrice: 0, //记录总价格，结账时使用
-                timer: null, //用于弹出+1间隔
-                timerSwitch: false, //弹出+1的开关
                 pendingGoods: [], //挂单的食物
                 ruleForm: { //外卖表单
                     name: '',
@@ -237,7 +256,8 @@ export default {
                             trigger: 'change'
                         }
                     ]
-                }
+                },
+                dotContainer: [] //临时存放+1显示的数组
             }
         },
     methods: {
@@ -322,14 +342,9 @@ export default {
                     num: 1
                 }));
             }
-
-            if(!this.timerSwitch){
-                this.timerSwitch = true;
-                oGoods.dotShow = true;
-                this.timer = setTimeout(()=>{
-                    oGoods.dotShow = this.timerSwitch = false;
-                }, 800);
-            }
+            oGoods.dotShow = true;
+            //临时存放+1显示的数组，afterEnter之后内部的项目设置为false
+            this.dotContainer.push(oGoods); 
         },
         //减少按钮可用状态
         ifMinus(oGoods){
@@ -554,6 +569,21 @@ export default {
             }).catch(() => {
                 
             });
+        },
+        beforeEnter(el){
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-10px)';
+        },
+        enter(el, done){
+            el.offsetLeft; //刷新过度动画
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(-30px)';
+            el.style.transition = 'opacity .8s, transform .8s';
+            done(); //立即执行后面的afterEnter()函数
+        },
+        afterEnter(el){
+            this.dotContainer.forEach(g=>g.dotShow=false);
+            this.dotContainer = [];
         }
     },
     filters: {
@@ -671,17 +701,6 @@ export default {
     left: 50%;
     margin-left: -10px;
     text-shadow: 2px 2px 4px;
-}
-.popup-enter, .popup-leave, .popup-leave-to{
-    bottom: 10px;
-    opacity: 0;
-}
-.popup-enter-active{
-    transition: bottom .8s, opacity .8s;
-}
-.popup-enter-to{
-    bottom: 30px;
-    opacity: 1;
 }
 /*外卖*/
 .snack-form-wrap{
